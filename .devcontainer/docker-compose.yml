@@ -1,26 +1,47 @@
 version: '3.8'
 services:
-  # Update this to the name of the service you want to work with in your docker-compose.yml file
   app:
-    # Uncomment if you want to override the service's Dockerfile to one in the .devcontainer 
-    # folder. Note that the path of the Dockerfile and context is relative to the *primary* 
-    # docker-compose.yml file (the first in the devcontainer.json "dockerComposeFile"
-    # array). The sample below assumes your primary file is in the root of your project.
-    #
-    # build:
-    #   context: .
-    #   dockerfile: .devcontainer/Dockerfile
-
     volumes:
-      # Update this to wherever you want VS Code to mount the folder of your project
       - ..:/workspaces:cached
-
-    # Uncomment the next four lines if you will use a ptrace-based debugger like C++, Go, and Rust.
-    # cap_add:
-    #   - SYS_PTRACE
-    # security_opt:
-    #   - seccomp:unconfined
-
-    # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
- 
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user_pg
+      POSTGRES_PASSWORD: password_pg
+      POSTGRES_DB: database_pg
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  postgres_secondary:
+    image: postgres:latest
+    container_name: postgres_secondary
+    environment:
+      POSTGRES_USER: user_pg_secondary
+      POSTGRES_PASSWORD: password_pg_secondary
+      POSTGRES_DB: database_pg_secondary
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_secondary_data:/var/lib/postgresql/data
+
+  postgres_tertiary:
+    image: postgres:latest
+    container_name: postgres_tertiary
+    environment:
+      POSTGRES_USER: user_pg_tertiary
+      POSTGRES_PASSWORD: password_pg_tertiary
+      POSTGRES_DB: database_pg_tertiary
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_tertiary_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  postgres_secondary_data:
+  postgres_tertiary_data:

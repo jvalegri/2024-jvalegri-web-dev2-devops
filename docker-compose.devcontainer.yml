@@ -1,33 +1,54 @@
 services: 
   app:
     image: node:alpine
-    # build: 
-    #   context: .
-    #   dockerfile: Dockerfile.minhaImagem
     volumes:
       - .:/app
     ports:
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/mydb?schema=${POSTGRES_DB}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     depends_on:
-      - redis
       - postgres
-
-  redis:
-    image: redis:alpine
-    volumes:
-      - ./.data/redis:/data
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - postgres_secondary
+      - postgres_tertiary
 
   postgres:
     image: postgres:alpine
-    volumes:
-      - ./.data/postgres:/var/lib/postgresql/data
+    container_name: postgres
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      POSTGRES_USER: user_pg
+      POSTGRES_PASSWORD: password_pg
+      POSTGRES_DB: database_pg
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - "5432:5432"
+
+  postgres_secondary:
+    image: postgres:alpine
+    container_name: postgres_secondary
+    environment:
+      POSTGRES_USER: user_pg_secondary
+      POSTGRES_PASSWORD: password_pg_secondary
+      POSTGRES_DB: database_pg_secondary
+    volumes:
+      - postgres_secondary_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  postgres_tertiary:
+    image: postgres:alpine
+    container_name: postgres_tertiary
+    environment:
+      POSTGRES_USER: user_pg_tertiary
+      POSTGRES_PASSWORD: password_pg_tertiary
+      POSTGRES_DB: database_pg_tertiary
+    volumes:
+      - postgres_tertiary_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+volumes:
+  postgres_data:
+  postgres_secondary_data:
+  postgres_tertiary_data:
